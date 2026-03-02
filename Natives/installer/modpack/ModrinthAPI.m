@@ -1,6 +1,7 @@
 #import "MinecraftResourceDownloadTask.h"
 #import "ModrinthAPI.h"
 #import "PLProfiles.h"
+#import "UnzipKit.h"
 
 static NSDictionary *ModrinthPreferredVersionFile(NSDictionary *versionDict) {
     NSArray *files = versionDict[@"files"];
