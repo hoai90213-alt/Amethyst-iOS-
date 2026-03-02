@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
-#import "UnzipKit.h"
+
+@class UZKArchive;
 
 @interface ModpackUtils : NSObject
 
