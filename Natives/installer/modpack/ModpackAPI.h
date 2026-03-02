@@ -1,6 +1,5 @@
 #import <Foundation/Foundation.h>
 #import "ModpackUtils.h"
-#import "UnzipKit.h"
 
 @class MinecraftResourceDownloadTask;
 

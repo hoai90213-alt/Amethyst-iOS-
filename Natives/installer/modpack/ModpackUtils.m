@@ -1,5 +1,5 @@
 #import "installer/FabricUtils.h"
-#import "external/UnzipKit/UnzipKit.h"
+#import "../../external/UnzipKit/UnzipKit.h"
 #import "ModpackUtils.h"
 
 static NSString *MPStringValue(id value) {
