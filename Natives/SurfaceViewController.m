@@ -144,7 +144,9 @@ static BOOL svmGameDirLooksShaderHeavy(NSString *gameDir) {
         setenv("GALLIUM_DRIVER", "zink", 1);
         setenv("MESA_LOADER_DRIVER_OVERRIDE", "zink", 1);
         if (shaderWorkload) {
-            setenv("MESA_GL_VERSION_OVERRIDE", "4.5COMPAT", 1);
+            // Keep GL capability level conservative for stability with Sodium,
+            // while still allowing modern Iris shader sources.
+            setenv("MESA_GL_VERSION_OVERRIDE", "4.1", 1);
             setenv("MESA_GLSL_VERSION_OVERRIDE", "450", 1);
         } else {
             setenv("MESA_GL_VERSION_OVERRIDE", "4.1", 1);

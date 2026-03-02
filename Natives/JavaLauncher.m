@@ -259,8 +259,9 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
             setenv("GALLIUM_DRIVER", "zink", 1);
             setenv("MESA_LOADER_DRIVER_OVERRIDE", "zink", 1);
             if (shaderWorkload) {
-                // Some modern packs (e.g. Complementary on newer Iris) require GLSL 4.50+.
-                setenv("MESA_GL_VERSION_OVERRIDE", "4.5COMPAT", 1);
+                // Keep GL capability level conservative for stability (Mesa 21 + Sodium),
+                // but allow modern shader packs to compile #version 450 shaders.
+                setenv("MESA_GL_VERSION_OVERRIDE", "4.1", 1);
                 setenv("MESA_GLSL_VERSION_OVERRIDE", "450", 1);
             } else {
                 setenv("MESA_GL_VERSION_OVERRIDE", "4.1", 1);
