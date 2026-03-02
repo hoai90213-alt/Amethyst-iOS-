@@ -131,8 +131,7 @@ static BOOL svmGameDirLooksShaderHeavy(NSString *gameDir) {
         BOOL rendererIsNonShaderFriendly =
             [renderer isEqualToString:@"auto"] ||
             [renderer isEqualToString:@ RENDERER_NAME_GL4ES] ||
-            [renderer isEqualToString:@ RENDERER_NAME_MTL_ANGLE] ||
-            [renderer isEqualToString:@ RENDERER_NAME_MOBILEGLUES];
+            [renderer isEqualToString:@ RENDERER_NAME_MTL_ANGLE];
         if (rendererIsNonShaderFriendly) {
             renderer = @ RENDERER_NAME_VK_ZINK;
         }
@@ -144,9 +143,18 @@ static BOOL svmGameDirLooksShaderHeavy(NSString *gameDir) {
     if ([renderer hasPrefix:@ RENDERER_NAME_VK_ZINK]) {
         setenv("GALLIUM_DRIVER", "zink", 1);
         setenv("MESA_LOADER_DRIVER_OVERRIDE", "zink", 1);
+        if (shaderWorkload) {
+            setenv("MESA_GL_VERSION_OVERRIDE", "4.5COMPAT", 1);
+            setenv("MESA_GLSL_VERSION_OVERRIDE", "450", 1);
+        } else {
+            setenv("MESA_GL_VERSION_OVERRIDE", "4.1", 1);
+            setenv("MESA_GLSL_VERSION_OVERRIDE", "410", 1);
+        }
     } else {
         unsetenv("GALLIUM_DRIVER");
         unsetenv("MESA_LOADER_DRIVER_OVERRIDE");
+        unsetenv("MESA_GL_VERSION_OVERRIDE");
+        unsetenv("MESA_GLSL_VERSION_OVERRIDE");
     }
     return self;
 }

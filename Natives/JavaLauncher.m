@@ -113,7 +113,7 @@ void init_loadDefaultEnv() {
     // Fix white color on banner and sheep, since GL4ES 1.1.5
     setenv("LIBGL_NORMALIZE", "1", 1);
 
-    // Override OpenGL version to 4.1 for Zink
+    // Default to OpenGL 4.1 for Zink. This may be raised later for shader-heavy workloads.
     setenv("MESA_GL_VERSION_OVERRIDE", "4.1", 1);
     setenv("MESA_GLSL_VERSION_OVERRIDE", "410", 1);
     setenv("MESA_VK_WSI_PRESENT_MODE", "fifo", 1);
@@ -247,8 +247,7 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
             BOOL rendererIsNonShaderFriendly =
                 [renderer isEqualToString:@"auto"] ||
                 [renderer isEqualToString:@ RENDERER_NAME_GL4ES] ||
-                [renderer isEqualToString:@ RENDERER_NAME_MTL_ANGLE] ||
-                [renderer isEqualToString:@ RENDERER_NAME_MOBILEGLUES];
+                [renderer isEqualToString:@ RENDERER_NAME_MTL_ANGLE];
             if (rendererIsNonShaderFriendly) {
                 NSLog(@"[JavaLauncher] Shader workload detected, switching renderer to Zink for stability.");
                 renderer = @ RENDERER_NAME_VK_ZINK;
@@ -259,9 +258,19 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
         if ([renderer hasPrefix:@ RENDERER_NAME_VK_ZINK]) {
             setenv("GALLIUM_DRIVER", "zink", 1);
             setenv("MESA_LOADER_DRIVER_OVERRIDE", "zink", 1);
+            if (shaderWorkload) {
+                // Some modern packs (e.g. Complementary on newer Iris) require GLSL 4.50+.
+                setenv("MESA_GL_VERSION_OVERRIDE", "4.5COMPAT", 1);
+                setenv("MESA_GLSL_VERSION_OVERRIDE", "450", 1);
+            } else {
+                setenv("MESA_GL_VERSION_OVERRIDE", "4.1", 1);
+                setenv("MESA_GLSL_VERSION_OVERRIDE", "410", 1);
+            }
         } else {
             unsetenv("GALLIUM_DRIVER");
             unsetenv("MESA_LOADER_DRIVER_OVERRIDE");
+            unsetenv("MESA_GL_VERSION_OVERRIDE");
+            unsetenv("MESA_GLSL_VERSION_OVERRIDE");
         }
         // Setup gameDir
         gameDir = [NSString stringWithFormat:@"%s/instances/%@/%@",
