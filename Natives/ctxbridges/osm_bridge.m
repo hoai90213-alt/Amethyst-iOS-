@@ -39,6 +39,45 @@ bool osm_init() {
 
 static OSMesaContext osm_create_context_with_fallback(OSMesaContext shareContext) {
     if (handle.OSMesaCreateContextAttribs) {
+        BOOL shaderWorkload = [NSProcessInfo.processInfo.environment[@"POJAV_SHADER_WORKLOAD"] boolValue];
+        OSMesaContext ctx = NULL;
+
+        if (shaderWorkload) {
+#ifdef OSMESA_CORE_PROFILE
+            const int coreAttribs41[] = {
+                OSMESA_FORMAT, OSMESA_RGBA,
+                OSMESA_DEPTH_BITS, 24,
+                OSMESA_STENCIL_BITS, 8,
+                OSMESA_ACCUM_BITS, 0,
+                OSMESA_PROFILE, OSMESA_CORE_PROFILE,
+                OSMESA_CONTEXT_MAJOR_VERSION, 4,
+                OSMESA_CONTEXT_MINOR_VERSION, 1,
+                0
+            };
+            ctx = handle.OSMesaCreateContextAttribs(coreAttribs41, shareContext);
+            if (ctx) {
+                NSDebugLog(@"OSMBridge: Created OSMesa core profile 4.1 context for shader workload");
+                return ctx;
+            }
+
+            const int coreAttribs33[] = {
+                OSMESA_FORMAT, OSMESA_RGBA,
+                OSMESA_DEPTH_BITS, 24,
+                OSMESA_STENCIL_BITS, 8,
+                OSMESA_ACCUM_BITS, 0,
+                OSMESA_PROFILE, OSMESA_CORE_PROFILE,
+                OSMESA_CONTEXT_MAJOR_VERSION, 3,
+                OSMESA_CONTEXT_MINOR_VERSION, 3,
+                0
+            };
+            ctx = handle.OSMesaCreateContextAttribs(coreAttribs33, shareContext);
+            if (ctx) {
+                NSDebugLog(@"OSMBridge: Created OSMesa core profile 3.3 context for shader workload");
+                return ctx;
+            }
+#endif
+        }
+
         const int attribs41[] = {
             OSMESA_FORMAT, OSMESA_RGBA,
             OSMESA_DEPTH_BITS, 24,
@@ -49,7 +88,7 @@ static OSMesaContext osm_create_context_with_fallback(OSMesaContext shareContext
             OSMESA_CONTEXT_MINOR_VERSION, 1,
             0
         };
-        OSMesaContext ctx = handle.OSMesaCreateContextAttribs(attribs41, shareContext);
+        ctx = handle.OSMesaCreateContextAttribs(attribs41, shareContext);
         if (ctx) return ctx;
 
         const int attribs33[] = {
